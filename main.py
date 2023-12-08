@@ -33,12 +33,12 @@ async def get_domains(async_session: async_sessionmaker[AsyncSession]) -> list:
     async with async_session() as session:
         result = await session.execute(select(Domains))
         data = result.scalars().all()
-
         for d in data:
             r = Rules()
             cnt_domains = len(d.name.split('.'))
             r.project_id = d.project_id
-            r.regexp = "\w+\." * (cnt_domains - 1) + "\w+"
+            reg = "//\w+\." * (cnt_domains - 1)
+            r.regexp = "(" + reg + "\w+$" + ")|(" + reg + "/)"
             session.add(r)
         await session.commit()
 
@@ -49,3 +49,7 @@ async def main():
 if __name__ == "__main__":
     asyncio.run(main())
 
+#test
+# import re
+# s = "https://fff.fff.fggg.gggg"
+# print(re.findall(r"(//\w+\.\w+\.\w+\.\w+$)|(//\w+\.\w+\.\w+\.\w+/)", s))
